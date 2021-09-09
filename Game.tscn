@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Game.gd" type="Script" id=1]
+
+[node name="Game" type="Node2D"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+light_color = Color( 0.921569, 0.921569, 0.815686, 1 )
+dark_color = Color( 0.466667, 0.580392, 0.333333, 1 )
+
+[node name="Grid" type="GridContainer" parent="."]
+margin_top = 0.140308
+margin_right = 64.0
+margin_bottom = 64.1403
+custom_constants/vseparation = 0
+custom_constants/hseparation = 0
+columns = 8
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Pieces" type="Node2D" parent="."]

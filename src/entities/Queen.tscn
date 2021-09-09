@@ -1,0 +1,11 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://src/entities/Piece.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Queen.gd" type="Script" id=2]
+[ext_resource path="res://assets/pieces/dark_queen.png" type="Texture" id=3]
+[ext_resource path="res://assets/pieces/light_queen.png" type="Texture" id=4]
+
+[node name="Queen" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+light_sprite = ExtResource( 4 )
+dark_sprite = ExtResource( 3 )
