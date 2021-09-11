@@ -65,7 +65,14 @@ func get_cords_from_mouse() -> Vector2:
 	
 	return cords
 
+func get_point_from_index(i: int) -> Vector2:
+	return Vector2(i % 8, floor(i / 8))
+
 func place_piece_at_rankfile(rankfile: String, piece: Piece) -> void:
 	var vector = Utils.get_vector_from_rank_file(rankfile)
+	var pos = Vector2((vector.x * 8) + 4, (vector.y * 8) + 4)
+	piece.position = pos
+
+func place_piece_at_vector(vector: Vector2, piece: Piece) -> void:
 	var pos = Vector2((vector.x * 8) + 4, (vector.y * 8) + 4)
 	piece.position = pos

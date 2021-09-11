@@ -12,9 +12,9 @@ _global_script_classes=[ {
 "base": "Piece",
 "class": "Bishop",
 "language": "GDScript",
-"path": "res://Bishop.gd"
+"path": "res://src/entities/Bishop.gd"
 }, {
-"base": "",
+"base": "EditorVCSInterface",
 "class": "GitAPI",
 "language": "NativeScript",
 "path": "res://git_api.gdns"
@@ -22,7 +22,7 @@ _global_script_classes=[ {
 "base": "Piece",
 "class": "King",
 "language": "GDScript",
-"path": "res://King.gd"
+"path": "res://src/entities/King.gd"
 }, {
 "base": "Piece",
 "class": "Knight",
@@ -42,7 +42,7 @@ _global_script_classes=[ {
 "base": "Piece",
 "class": "Queen",
 "language": "GDScript",
-"path": "res://Queen.gd"
+"path": "res://src/entities/Queen.gd"
 }, {
 "base": "Piece",
 "class": "Rook",
@@ -74,8 +74,8 @@ Utils="*res://src/utils/Utils.gd"
 
 window/size/width=64
 window/size/height=64
-window/size/test_width=384
-window/size/test_height=384
+window/size/test_width=768
+window/size/test_height=768
 window/stretch/mode="2d"
 window/stretch/aspect="keep"
 
