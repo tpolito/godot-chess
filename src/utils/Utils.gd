@@ -68,6 +68,9 @@ func get_cords_from_mouse() -> Vector2:
 func get_point_from_index(i: int) -> Vector2:
 	return Vector2(i % 8, floor(i / 8))
 
+func get_index_from_point(point: Vector2) -> float:
+	return point.x + (point.y * 8)
+
 func place_piece_at_rankfile(rankfile: String, piece: Piece) -> void:
 	var vector = Utils.get_vector_from_rank_file(rankfile)
 	var pos = Vector2((vector.x * 8) + 4, (vector.y * 8) + 4)
@@ -76,3 +79,15 @@ func place_piece_at_rankfile(rankfile: String, piece: Piece) -> void:
 func place_piece_at_vector(vector: Vector2, piece: Piece) -> void:
 	var pos = Vector2((vector.x * 8) + 4, (vector.y * 8) + 4)
 	piece.position = pos
+
+func get_piece_at_index(index: int, node: Node) -> Piece:
+	var piece_to_find = null
+	for piece in node.get_children():
+		var piece_index = piece.index_on_board
+		if piece_index == index:
+			piece_to_find = piece
+	return piece_to_find
+
+func delete_children(node: Node) -> void:
+	for n in node.get_children():
+		n.queue_free()

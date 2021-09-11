@@ -12,6 +12,8 @@ export(Color) var dark_color
 export(String) var starting_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 var board_state = []
+var selected_piece
+var holding_piece = false
 
 func _ready() -> void:
 	draw_board() # Draw tiles
@@ -20,10 +22,10 @@ func _ready() -> void:
 	place_pieces(board_state)
 
 func _process(delta: float) -> void:
-	if(Input.is_action_just_pressed("mouse_left")):
-		print(Utils.get_cords_from_mouse())
+	move_piece()
+	# Debug Stuff
 	if(Input.is_action_just_pressed("ui_accept")):
-		print(get_board_state() == board_state)
+		pass
 
 func draw_board() -> void:
 	for y in 8:
@@ -85,3 +87,33 @@ func get_board_state() -> Array:
 		var piece_index = piece.index_on_board
 		board[piece_index] = piece.fen_symbol
 	return board
+
+func move_piece() -> void:
+	if(Input.is_action_just_pressed("mouse_left") and holding_piece == false):
+		# Pick up clicked on piece
+		var index = Utils.get_index_from_point(Utils.get_cords_from_mouse())
+		selected_piece = Utils.get_piece_at_index(index, $Pieces)
+		if selected_piece != null:
+			holding_piece = true
+		else:
+			holding_piece = false
+	elif Input.is_action_just_pressed("mouse_left") and holding_piece == true:
+		# Place piece if holding one
+		var index = Utils.get_index_from_point(Utils.get_cords_from_mouse())
+		place_piece(selected_piece, index)
+		# Clear and re-draw the board with the piece in its new position
+		Utils.delete_children($Pieces)
+		place_pieces(board_state)
+		selected_piece = null
+		holding_piece = false
+
+func place_piece(piece: Piece, new_index: int) -> void:
+	var prev_index = piece.index_on_board
+	board_state[prev_index] = '.'
+	board_state[new_index] = piece.fen_symbol
+#	color_tile(prev_index, $Grid, Color.darkgreen)
+#	color_tile(new_index, $Grid, Color.darkgreen)
+
+func color_tile(i: int, node: Node, color: Color) -> void:
+	var rect = node.get_children()[i]
+	rect.color = color
