@@ -25,7 +25,8 @@ func _process(delta: float) -> void:
 	move_piece()
 	# Debug Stuff
 	if(Input.is_action_just_pressed("ui_accept")):
-		pass
+		print('Selected Piece ' + selected_piece.name if selected_piece != null else 'null')
+		print('Holding Piece ' + str(holding_piece))
 
 func draw_board() -> void:
 	for y in 8:
@@ -98,14 +99,30 @@ func move_piece() -> void:
 		else:
 			holding_piece = false
 	elif Input.is_action_just_pressed("mouse_left") and holding_piece == true:
-		# Place piece if holding one
 		var index = Utils.get_index_from_point(Utils.get_cords_from_mouse())
-		place_piece(selected_piece, index)
-		# Clear and re-draw the board with the piece in its new position
-		Utils.delete_children($Pieces)
-		place_pieces(board_state)
-		selected_piece = null
-		holding_piece = false
+		# When holding a piece get the piece at the new clicked location, null if empty tile
+		var piece_at_click = Utils.get_piece_at_index(index, $Pieces)
+		# If the tile is not empty
+		if piece_at_click != null:
+			# Check if pieces match color if so swap the currently selected piece
+			if selected_piece.is_light == piece_at_click.is_light:
+				swap_held_piece(piece_at_click)
+			else:
+				# If the clicked tile is empty, place the piece there
+				place_piece(selected_piece, index)
+				# Clear and re-draw the board with the piece in its new position
+				Utils.delete_children($Pieces)
+				place_pieces(board_state)
+				selected_piece = null
+				holding_piece = false
+		else:
+			# If the clicked tile is empty, place the piece there
+			place_piece(selected_piece, index)
+			# Clear and re-draw the board with the piece in its new position
+			Utils.delete_children($Pieces)
+			place_pieces(board_state)
+			selected_piece = null
+			holding_piece = false
 
 func place_piece(piece: Piece, new_index: int) -> void:
 	var prev_index = piece.index_on_board
@@ -113,6 +130,9 @@ func place_piece(piece: Piece, new_index: int) -> void:
 	board_state[new_index] = piece.fen_symbol
 #	color_tile(prev_index, $Grid, Color.darkgreen)
 #	color_tile(new_index, $Grid, Color.darkgreen)
+
+func swap_held_piece(piece: Piece) -> void:
+	selected_piece = piece
 
 func color_tile(i: int, node: Node, color: Color) -> void:
 	var rect = node.get_children()[i]
