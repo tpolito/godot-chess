@@ -4,12 +4,8 @@
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_lock_": true
-}
 light_color = Color( 0.976471, 0.960784, 0.937255, 1 )
 dark_color = Color( 0.541176, 0.560784, 0.768627, 1 )
-starting_fen = "b1nb1rkr/pppppppp/8/1n2q3/2P2B2/4R3/PP1PPPPP/BNN1Q1KR w - - 0 1"
 
 [node name="Grid" type="GridContainer" parent="."]
 margin_top = 0.140308
