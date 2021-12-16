@@ -65,6 +65,7 @@ func get_cords_from_mouse() -> Vector2:
 	
 	return cords
 
+# Vector from index
 func get_point_from_index(i: int) -> Vector2:
 	return Vector2(i % 8, floor(i / 8))
 
@@ -91,3 +92,8 @@ func get_piece_at_index(index: int, node: Node) -> Piece:
 func delete_children(node: Node) -> void:
 	for n in node.get_children():
 		n.queue_free()
+
+func is_even(n: int) -> bool:
+	if n % 2 > 0:
+		return false
+	return true

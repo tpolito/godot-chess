@@ -18,6 +18,7 @@ var holding_piece = false
 
 var number_squares_to_edge = []
 var dir_offsets = [-8, 8, -1, 1, -9, 9, -7, 7]
+var knight_offsets = [-15,-17,-6,10,-10,6,15,17]
 
 func _ready() -> void:
 	draw_board() # Draw tiles
@@ -26,17 +27,15 @@ func _ready() -> void:
 	set_board_from_fen(starting_fen)
 	place_pieces(board_state)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	move_piece()
 	# Debug Stuff
-	if(Input.is_action_just_pressed("mouse_right")):
-		var index = Utils.get_index_from_point(Utils.get_cords_from_mouse())
-		print('Index: ', index)
-		var point = Utils.get_point_from_index(index)
-		print('y:', point.y, ', x:', point.x)
-		print(number_squares_to_edge[index])
-#		print(test)
-#		print(number_squares_to_edge[test.y][test.x])
+#	if(Input.is_action_just_pressed("mouse_right")):
+#		var index = Utils.get_index_from_point(Utils.get_cords_from_mouse())
+#		print('Index: ', index)
+#		var point = Utils.get_point_from_index(index)
+#		print('y:', point.y, ', x:', point.x)
+#		print(number_squares_to_edge[index])
 	if(Input.is_action_just_pressed("ui_accept")):
 		generate_moves()
 	if(Input.is_action_just_pressed("debug_reset")):
@@ -61,8 +60,8 @@ func pre_load_move_data() -> void:
 			number_squares_to_edge.append([])
 			var num_north: int = y
 			var num_south: int= 7 - y
-			var num_west: int = x
-			var num_east: int = 7 - x
+			var num_west: int = 7 - x
+			var num_east: int = x
 			var tile_index: int = x + (y  * 8)
 			number_squares_to_edge[tile_index] = []
 
@@ -85,11 +84,20 @@ func generate_moves() -> Array:
 		if piece != null:
 			var fen = piece.fen_symbol.to_lower()
 			# Bishop + Queen
-			if fen == "b" or fen == "q":
-				moves += generate_diagonal_moves(tile, piece)
+			# if fen == "b" or fen == "q": 
+				# moves += generate_diagonal_moves(tile, piece)
 			# Rook + Queen
-			if fen == "r" or fen == "q":
-				moves += generate_sliding_moves(tile, piece)
+			# if fen == "r" or fen == "q":
+				# moves += generate_cardinal_moves(tile, piece)
+			# Knight
+			# if fen == "n":
+				# moves += generate_knight_moves(tile, piece)
+			# Pawn
+			if fen == "p":
+				moves += generate_pawn_moves(tile, piece)
+			# King
+#			if fen == "k":
+#				moves += generate_king_moves(tile, piece)
 	return moves
 
 func generate_diagonal_moves(starting_tile: int, piece: Piece):
@@ -110,16 +118,16 @@ func generate_diagonal_moves(starting_tile: int, piece: Piece):
 			
 			var move = [starting_tile, target_tile]
 			slideing_moves += [move]
-			color_tile(move[1], $Grid, Color.darkolivegreen) # DEBUG
+			color_tile(move[1], $Grid, Color.darkgreen) # DEBUG
 			
 			# Capture
 			if piece_at_target_tile != null:
-				if piece_at_target_tile.is_light == piece.is_light:
+				if piece.is_light != piece_at_target_tile.is_light:
 					break
 	return slideing_moves
 
-func generate_sliding_moves(starting_tile: int, piece: Piece):
-	var slideing_moves = []
+func generate_cardinal_moves(starting_tile: int, piece: Piece):
+	var cardinal_moves = []
 	for dir in range(4):
 		for n in number_squares_to_edge[starting_tile][dir]:
 			var target_tile = starting_tile + dir_offsets[dir] * (n + 1)
@@ -134,14 +142,78 @@ func generate_sliding_moves(starting_tile: int, piece: Piece):
 					break
 			
 			var move = [starting_tile, target_tile]
-			slideing_moves += [move]
-			color_tile(move[1], $Grid, Color.darkolivegreen) # DEBUG
+			cardinal_moves += [move]
+			color_tile(move[1], $Grid, Color.darkgreen) # DEBUG
 			
 			# Capture
 			if piece_at_target_tile != null:
-				if piece_at_target_tile.is_light == piece.is_light:
+				if piece_at_target_tile.is_light != piece.is_light:
 					break
-	return slideing_moves
+	return cardinal_moves
+
+func generate_knight_moves(starting_tile: int, piece: Piece):
+	var knight_moves = []
+	for dir in range(knight_offsets.size()):
+		var target_tile = starting_tile + knight_offsets[dir]
+		var target_vector = Utils.get_point_from_index(target_tile)
+		var starting_vector = Utils.get_point_from_index(starting_tile)
+		var piece_at_target_tile = Utils.get_piece_at_index(target_tile, $Pieces)
+		
+		# Target is off the board
+		if target_tile < 0 or target_tile > 63:
+			continue
+		
+		# Check and make sure they are not moving ouside their range
+		if target_vector.x > (starting_vector.x + 2) or target_vector.x < (starting_vector.x - 2):
+			continue
+		if target_vector.y > (starting_vector.y + 2) or target_vector.y < (starting_vector.y - 2):
+			continue
+		# Target is a friendly piece, and we stop moving in this direction 
+		if piece_at_target_tile != null:
+			if piece_at_target_tile.is_light == piece.is_light:
+				continue
+		
+		var move = [starting_tile, target_tile]
+		knight_moves += [move]
+		color_tile(move[1], $Grid, Color.darkgreen) # DEBUG
+		
+		# Capture
+		if piece_at_target_tile != null:
+			if piece_at_target_tile.is_light != piece.is_light:
+				continue
+	return knight_moves
+
+func generate_pawn_moves(starting_tile: int, piece: Piece):
+	var pawn_moves = []
+	# var can_double_move = true
+	var pawn_offsets = [-7,-8,-9] if piece.is_light else [7,8,9]
+
+	for n in range(pawn_offsets.size()):
+		var is_even = Utils.is_even(pawn_offsets[n])# if we are checking an even number than we know we are moving not capturing
+		var target_tile = starting_tile + pawn_offsets[n]
+		var target_vector = Utils.get_point_from_index(target_tile)
+		var starting_vector = Utils.get_point_from_index(starting_tile)
+		var piece_at_target = Utils.get_piece_at_index(target_tile, $Pieces)
+
+		# Target is not on the board
+		if target_tile < 0 or target_tile > 63:
+			continue
+		# Pawns cannot capture infront of them, so if there is a piece in front of us we cannot move 
+		if piece_at_target != null and is_even:
+			continue
+		
+		if target_vector.x > (starting_vector.x + 1) or target_vector.x < (starting_vector.x - 1):
+			continue
+		if target_vector.y > (starting_vector.y + 1) or target_vector.y < (starting_vector.y - 1):
+			continue
+		
+		var move = [starting_tile, target_tile]
+		pawn_moves += [move]
+		color_tile(move[1], $Grid, Color.darkgreen)
+	return pawn_moves
+
+func generate_king_moves(starting_tile: int, piece: Piece):
+	pass
 
 func set_board_from_fen(fen: String) -> void:
 	var fen_pieces = fen.split(' ', true, 1)[0]
